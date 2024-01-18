@@ -12,16 +12,16 @@ struct Fiche{
 };
 
 // question 3
-bool question_3c(vector<Fiche> v){
+string question_3c(vector<Fiche> v){
     int count = 0;
-    bool existe;
-    for(int i=0; i<2500 ; i++){
-        if ((v[i].ville == "Toulouse") && (v[i].prenom[0] == 'A')){
+    string existe;
+    for(Fiche f : v){
+        if ((f.ville == "Toulouse") && (f.prenom[0] == 'A')){
             count++;
         }
     }
-    existe = (count > 0) ? true : false;
-    return count;
+    existe = (count > 0) ? "oui" : "non";
+    return existe;
 }
 
 
@@ -57,15 +57,15 @@ int main(){
     // question 3
     int count1 = 0;
     int count2 = 0;
-    for(int i=0; i<2500 ; i++){
-        if (vdata[i].ville == "Lyon"){
+    for(Fiche f : vdata){
+        if (f.ville == "Lyon"){
             count1++;
-            if (vdata[i].age < 30){
+            if (f.age < 30){
                 count2++;
             }
         }
     }
-    cout << "3.a) Nombre de personnes à Lyon (proportion) : " << count1 << " (" << 100*count1/2500 << "%)" << endl;
+    cout << "3.a) Nombre de personnes à Lyon (proportion) : " << count1 << " (" << 100*count1/2500. << "%)" << endl;
     cout << "3.b) ---> de moins de 30ans : " << count2 << endl;
     cout << "3.c) Un Toulousain dont le prénom commance par \'A\' : " << question_3c(vdata) << endl;
 
@@ -83,9 +83,9 @@ int main(){
 
     double moyenne=0;
     double ecart_type=0;
-    for(int i=0; i<2500 ; i++){
-        moyenne += vdata[i].age;
-        ecart_type += vdata[i].age * vdata[i].age;
+    for(Fiche f : vadata){
+        moyenne += f.age;
+        ecart_type += f.age * f.age;
     }
     moyenne /= 2500;
     ecart_type = ecart_type/2500 - moyenne*moyenne;
@@ -93,23 +93,22 @@ int main(){
 
     int tpsParis, tpsMarseille = 0;
     int countParis, countMarseille = 0;
-    for(int i=1; i<2500 ; i++){
-        if (vdata[i].ville == "Paris"){
-            tpsParis += vdata[i].temps;
+    for(Fiche f : vdata){
+        if (f.ville == "Paris"){
+            tpsParis += f.temps;
             countParis++;
-        } else if (vdata[i].ville == "Marseille"){
-            tpsMarseille = vdata[i].temps;
+        } else if (f.ville == "Marseille"){
+            tpsMarseille = f.temps;
             countMarseille++;
         }
     }
     cout << "3.f) Les parisiens en moyenne plus rapide que les Marseillais ? " << ((tpsParis/countParis > tpsMarseille/countMarseille) ? "Oui" : "Non") << endl;
 
     ofstream fichierT("toulousain.txt");
-    fichierT << "3.f)" << endl;
-    for (int i=0; i<2500 ; i++){
+    for (Fiche f : vdata){
         /* code */
-        if (vdata[i].ville == "Toulouse"){
-            fichierT << vdata[i].prenom << " " << vdata[i].age << " " << vdata[i].temps << endl;
+        if (f.ville == "Toulouse"){
+            fichierT << f.prenom << " " << f.age << " " << f.temps << endl;
         }
     }
     
