@@ -11,20 +11,6 @@ struct Fiche{
     double temps;
 };
 
-// question 3
-string question_3c(vector<Fiche> v){
-    int count = 0;
-    string existe;
-    for(Fiche f : v){
-        if ((f.ville == "Toulouse") && (f.prenom[0] == 'A')){
-            count++;
-        }
-    }
-    existe = (count > 0) ? "oui" : "non";
-    return existe;
-}
-
-
 //
 int main(){
     ifstream fichierdata("smalldata.txt");
@@ -67,7 +53,14 @@ int main(){
     }
     cout << "3.a) Nombre de personnes à Lyon (proportion) : " << count1 << " (" << 100*count1/2500. << "%)" << endl;
     cout << "3.b) ---> de moins de 30ans : " << count2 << endl;
-    cout << "3.c) Un Toulousain dont le prénom commance par \'A\' : " << question_3c(vdata) << endl;
+
+    int countc=0;
+    for(Fiche f : vdata){
+        if ((f.ville == "Toulouse") && (f.prenom[0] == 'A')){
+            countc++;
+        }
+    }
+    cout << "3.c) Un Toulousain dont le prénom commance par \'A\' : " << ((countc > 0) ? "Oui" : "Non") << endl;
 
     int ind_min = 0;
     int ind_max = 0;
@@ -79,11 +72,11 @@ int main(){
         }
     }
     cout << "3.d) Âge minimal : " << vdata[ind_min].age << " (" << vdata[ind_min].prenom << ")" << endl;
-    cout << "   Âge maximal : " << vdata[ind_max].age << " (" << vdata[ind_max].prenom << ")" << endl;
+    cout << "     Âge maximal : " << vdata[ind_max].age << " (" << vdata[ind_max].prenom << ")" << endl;
 
     double moyenne=0;
     double ecart_type=0;
-    for(Fiche f : vadata){
+    for(Fiche f : vdata){
         moyenne += f.age;
         ecart_type += f.age * f.age;
     }
