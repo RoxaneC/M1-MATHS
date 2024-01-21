@@ -1316,7 +1316,7 @@ Ariane	Toulouse	32	11.6742
 Anne	Bordeaux	42	18.0777
 Alice	Paris	35	14.2512
 Serge	Paris	24	14.1087
-Jabba	Tatouine 113	57.42
+Jabba	Tatouine    113 57.42
 Elsa	Brest	39	19.7034
 Olga	Paris	35	16.7166
 Karine	Paris	21	15.0741
