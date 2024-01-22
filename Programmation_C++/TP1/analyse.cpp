@@ -2,10 +2,12 @@
 #include <fstream>
 
 #include <vector>
+#include <set>
 #include <cmath>
 #include <string>
 
 #include <algorithm>
+#include <numeric>
 
 using namespace std;
 struct Fiche{
@@ -14,8 +16,8 @@ struct Fiche{
     int age;
     double temps;
 };
-//
 
+// *******************
 // version alternative question 1.4
 vector<Fiche> initialisation(string nomFichier){
 
@@ -65,11 +67,12 @@ vector<Fiche> initialisation(string nomFichier){
 
 // *******************
 int main(){
+	int N = 2500;
 
     // question 1.2
     /* ifstream fichierdata("smalldata.txt");
-    vector<Fiche> vdata(2500);
-    for(int i=0; i<2500 ; i++){
+    vector<Fiche> vdata(N);
+    for(int i=0; i<N ; i++){
         Fiche aux;
         fichier >> aux.prenom >> aux.ville >> aux.age >> aux.temps;
 
@@ -95,7 +98,7 @@ int main(){
     }
 
     // question 1.4 autre version
-    // Erreur de segmentation ???
+    // Erreur de segmentation ! Pas sur les ordi de la fac o_O?
     /* vector<Fiche> vdata;
     vdata = initialisation("smalldata.txt"); */
 
@@ -106,7 +109,7 @@ int main(){
     cout << "Sans <algorithm>" << endl;
     int countLyon = 0;
     int count30 = 0;
-    for(Fiche f : vdata){
+    for(const Fiche & f : vdata){
         if (f.ville == "Lyon"){
             countLyon++;
             if (f.age < 30){
@@ -115,11 +118,11 @@ int main(){
         }
     }
     cout    << "1.3.a) Nombre de personnes à Lyon (proportion) : " << countLyon
-            << " (" << 100*countLyon/2500. << "%)" << endl;
+            << " (" << 100*double(countLyon)/N << "%)" << endl;
     cout << "1.3.b) ---> de moins de 30ans : " << count30 << endl;
 
     int countA=0;
-    for(Fiche f : vdata){
+    for(const Fiche & f : vdata){
         if ((f.ville == "Toulouse") && (f.prenom[0] == 'A')){
             countA++;
         }
@@ -128,7 +131,7 @@ int main(){
 
     int ind_min = 0;
     int ind_max = 0;
-    for(int i=1; i<2500 ; i++){
+    for(int i=1; i<N ; i++){
         if (vdata[i].age < vdata[ind_min].age){
             ind_min=i;
         } else if (vdata[i].age > vdata[ind_max].age){
@@ -140,17 +143,17 @@ int main(){
 
     double moyenne=0.;
     double ecart_type=0.;
-    for(Fiche f : vdata){
+    for(const Fiche & f : vdata){
         moyenne += f.age;
         ecart_type += f.age * f.age;
     }
-    moyenne /= 2500;
-    ecart_type = sqrt(ecart_type/2500 - moyenne*moyenne);
+    moyenne /= N;
+    ecart_type = sqrt(ecart_type/N - moyenne*moyenne);
     cout << "1.3.e) Âge moyen : " << moyenne << ", écart-type : " << ecart_type << endl;
 
     double tpsParis=0., tpsMarseille=0.;
     int countParis=0, countMarseille=0;
-    for(Fiche f : vdata){
+    for(const Fiche & f : vdata){
         if (f.ville == "Paris"){
             tpsParis += f.temps;
             countParis++;
@@ -159,15 +162,18 @@ int main(){
             countMarseille++;
         }
     }
-    cout    << "1.3.f) Les Parisiens en moyenne plus rapide que les Marseillais ? "
+    cout	<< "1.3.f) Les Parisiens en moyenne plus rapide que les Marseillais ? "
             << ((tpsParis/countParis > tpsMarseille/countMarseille) ? "Oui" : "Non") << endl;
-    cout << "Paris : " << tpsParis/countParis << ", Marseille : " << tpsMarseille/countMarseille << endl;
+    cout << "---> Paris : " << tpsParis/countParis << "\n---> Marseille : " << tpsMarseille/countMarseille << endl;
 
     // question 3.g)
     vector<Fiche> ficheT;
+    int compt=0;
     ofstream fichierT("toulousain.txt");
-    for (Fiche f : vdata){
+    for (const Fiche & f : vdata){
         if (f.ville == "Toulouse"){
+	        compt++;
+	        
             Fiche aux;
             aux.prenom = f.prenom;
             aux.ville = f.ville;
@@ -182,43 +188,69 @@ int main(){
     int ageT=0;
     double tempsT=0.;
     double agetempsT=0.;
-    int compt=0;
-    for(Fiche f : ficheT){
+    for(const Fiche & f : ficheT){
         ageT += f.age;
         tempsT += f.temps;
         agetempsT += f.age*f.temps;
-        compt++;
     }
-    double covAgeTempsT = agetempsT/compt - (ageT/compt)*(tempsT/compt);    // cov(X,Y) = E[XY] - E[X]E[Y]
+    double covAgeTempsT = agetempsT/compt - (double(ageT)/compt)*(tempsT/compt);    // cov(X,Y) = E[XY] - E[X]E[Y]
     cout << "1.3.h) Covariance empirique entre âge et temps au 100 mètres pour les Toulousains : " << covAgeTempsT << endl;
 
-    // question h ???
-    vector<string> villes;
+    set<string> villes;
+    for(const Fiche & f : vdata){
+		villes.insert(f.ville);
+	}
+	cout << "1.3.i) Liste des villes présentes (avec set) :" << endl;
+	for(string s : villes){
+		cout << "- " << s << endl;
+	}
 
 
     // **************************************************
     // question 2.1
     cout << endl << "Avec <algorithm>" << endl;
     int nb_Lyon = count_if( vdata.begin(), vdata.end(),
-                            [](Fiche f){    return (f.ville == "Lyon");} );
+                            [](const Fiche & f){    return (f.ville == "Lyon");} );
     int nb_Lyon30 = count_if(   vdata.begin(), vdata.end(),
-                                [](Fiche f){    return ((f.ville == "Lyon") && (f.age < 30));} );
-    cout << "2.3.a) Nombre de personnes à Lyon (proportion) : " << nb_Lyon << " (" << 100*nb_Lyon/2500. << "%)" << endl;
+                                [](const Fiche & f){    return ((f.ville == "Lyon") && (f.age < 30));} );
+    cout << "2.3.a) Nombre de personnes à Lyon (proportion) : " << nb_Lyon << " (" << 100*double(nb_Lyon)/N << "%)" << endl;
     cout << "2.3.b) ---> de moins de 30ans : " << nb_Lyon30 << endl;
 
     bool is_TA = any_of(    vdata.begin(), vdata.end(),
-                            [](Fiche f){    return ((f.ville == "Toulouse") && (f.prenom[0]=='A'));} );
+                            [](const Fiche & f){    return ((f.ville == "Toulouse") && (f.prenom[0]=='A'));} );
     cout << "2.3.c) Un Toulousain dont le prénom commance par \'A\' : " << (is_TA ? "Oui" : "Non") << endl;
 
     auto minmax = minmax_element(   vdata.begin(), vdata.end(),
-                                    [](Fiche f1, Fiche f2){ return f1.age < f2.age;} );
+                                    [](const Fiche & f1, const Fiche & f2){ return f1.age < f2.age;} );
     cout << "2.3.d) Âge minimal : " << minmax.first->age << " (" << minmax.first->prenom << ")" << endl;
     cout << "       Âge maximal : " << minmax.second->age << " (" << minmax.second->prenom << ")" << endl;
     
-    
-    //
-    //cout << "1.3.e) Âge moyen : " << moyenne << ", écart-type : " << ecart_type << endl;
+    //int age_tot = accumulate(	vdata.begin(), vdata.end(), 0,
+	//							[](int sum, const Fiche & f){	return sum + f.age;} );
+    //int age_tot_carre = accumulate(	vdata.begin(), vdata.end(), 0,
+	//								[](int sum, const Fiche & f){	return sum + f.age*f.age;} );
+    //double moy_age = double(age_tot)/N;
+    //double ecart_age = sqrt(double(age_tot_carre)/N - moy_age*moy_age);
+    double moy_age = accumulate(	vdata.begin(), vdata.end(), 0.,
+									[N](double sum, const Fiche& f){	return sum + double(f.age)/N;} );
+    double moy_age_carre = accumulate(	vdata.begin(), vdata.end(), 0.,
+										[N](double sum, const Fiche& f){	return sum + double(f.age*f.age)/N;} );
+    double ecart_age = sqrt(moy_age_carre - moy_age*moy_age);
+    cout << "2.3.e) Âge moyen : " << moy_age << ", écart-type : " << ecart_age << endl;
 
+
+    double temps_Paris = accumulate(	vdata.begin(), vdata.end(), 0.,
+									[](double sum, const Fiche & f){	return (f.ville == "Paris") ? sum + f.temps : sum;} );
+    double temps_Marseille = accumulate(	vdata.begin(), vdata.end(), 0.,
+										[](double sum, const Fiche & f){	return (f.ville == "Marseille") ? sum + f.temps : sum;} );
+    int nb_Paris = count_if(	vdata.begin(), vdata.end(),
+								[](const Fiche & f){    return (f.ville == "Paris");} );
+    int nb_Marseille = count_if(	vdata.begin(), vdata.end(),
+									[](const Fiche & f){    return (f.ville == "Marseille");} );
+    cout    << "2.3.f) Les Parisiens en moyenne plus rapide que les Marseillais ? "
+            << ((temps_Paris/nb_Paris > temps_Marseille/nb_Marseille) ? "Oui" : "Non") << endl;
+    cout << "---> Paris : " << temps_Paris/nb_Paris << "\n---> Marseille : " << temps_Marseille/nb_Marseille << endl;
+    
 
     fichierT.close();
     return 0;
