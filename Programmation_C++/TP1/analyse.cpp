@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <numeric>
+#include <iterator>
 
 using namespace std;
 
@@ -123,12 +124,15 @@ int main(){
     cout << "1.3.b) ---> de moins de 30ans : " << count30 << endl;
 
     int countA=0;
+    vector<string> prenoms;
     for(const Fiche & f : vdata){
-        if ((f.ville == "Toulouse") && (f.prenom[0] == 'A')){
+        if ((f.ville == "Toulouse") && (f.prenom.front() == 'A')){
             countA++;
+            prenoms.push_back(f.prenom);
         }
     }
     cout << "1.3.c) Un Toulousain dont le prénom commance par \'A\' : " << ((countA > 0) ? "Oui" : "Non") << endl;
+    cout << "---> il y en a " << countA << " et le premier s'appelle " << prenoms.front() << endl;
 
     int ind_min = 0;
     int ind_max = 0;
@@ -219,13 +223,16 @@ int main(){
     cout << "2.1.b) ---> de moins de 30ans : " << nb_Lyon30 << endl;
 
     bool is_TA = any_of(    vdata.begin(), vdata.end(),
-                            [](const Fiche & f){    return ((f.ville == "Toulouse") && (f.prenom[0]=='A'));} );
+                            [](const Fiche & f){    return ((f.ville == "Toulouse") && (f.prenom.front()=='A'));} );
     cout << "2.1.c) Un Toulousain dont le prénom commance par \'A\' : " << (is_TA ? "Oui" : "Non") << endl;
 
     auto minmax = minmax_element(   vdata.begin(), vdata.end(),
                                     [](const Fiche & f1, const Fiche & f2){ return f1.age < f2.age;} );
-    cout << "2.1.d) Âge minimal : " << minmax.first->age << " (" << minmax.first->prenom << ")" << endl;
+    cout << "2.1.d)	Âge minimal : " << minmax.first->age << " (" << minmax.first->prenom << ")" << endl;
     cout << "       Âge maximal : " << minmax.second->age << " (" << minmax.second->prenom << ")" << endl;
+    /* Autre méthode pour les pointeurs !
+    cout << "2.1.d)	Âge minimal : " << (*minmax.first).age << " (" << (*minmax.first).prenom << ")" << endl;
+    cout << "       Âge maximal : " << (*minmax.second).age << " (" << (*minmax.second).prenom << ")" << endl; */
     
     double moy_age = accumulate(	vdata.begin(), vdata.end(), 0.,
 									[N](double sum, const Fiche & f){	return sum + double(f.age)/N;} );
@@ -246,12 +253,10 @@ int main(){
             << ((temps_Paris/nb_Paris > temps_Marseille/nb_Marseille) ? "Oui" : "Non") << endl;
     cout << "---> Paris : " << temps_Paris/nb_Paris << "\n---> Marseille : " << temps_Marseille/nb_Marseille << endl;
     
-    // g)
-    // comprends pas non plus, comme question i
-    /* ofstream fichierT2("toulousain_algo.txt");
+    ofstream fichierT2("toulousain_algo.txt");
     for_each(   vdata.begin(), vdata.end(),
-                [fichierT2](const Fiche & f){    fichierT2 << f.prenom << "\t" << f.ville << "\t" << 2018-f.age << "\t" << f.temps << endl;} );
-    fichierT2.close(); */
+                [& fichierT2](const Fiche & f){    if (f.ville == "Toulouse") fichierT2 << f.prenom << "\t" << f.ville << "\t" << 2018-f.age << "\t" << f.temps << endl;} );
+    fichierT2.close();
 
     int nb_Toulouse = count_if(	vdata.begin(), vdata.end(),
 								[](const Fiche & f){    return (f.ville == "Toulouse");} );
@@ -264,26 +269,44 @@ int main(){
     double cov_agetemps_Toulouse = moy_agetemps_Toulouse - moy_temps_Toulouse*moy_age_Toulouse;    // cov(X,Y) = E[XY] - E[X]E[Y]
     cout << "2.1.h) Covariance empirique entre âge et temps au 100 mètres pour les Toulousains : " << cov_agetemps_Toulouse << endl;
 
-    // i)
-    // comprends pas l'erreur, le set n'est pas const, pourquoi il ne veut pas le modifier ?
-    /* set<string> liste_villes;
-    for_each(   vdata.begin(), vdata.end(),
-                [liste_villes](const Fiche & f){ liste_villes.insert(f.ville);} );
+    set<string> liste_villes;
+    transform(	vdata.begin(), vdata.end(), inserter(liste_villes,liste_villes.end()),
+				[](const Fiche & f) { return f.ville; });
 	cout << "2.1.i) Liste des villes présentes :" << endl;
     for_each(   liste_villes.begin(), liste_villes.end(),
-                [](const string & s){ cout << "- " << s << endl;} ); */
+                [](const string & s){ cout << "- " << s << endl;} );
     
 
     // question 2.2
     ofstream fichierTri("data_tri.txt");
     sort(   vdata.begin(), vdata.end(),
             [](const Fiche & f1, const Fiche & f2){   return f1.temps > f2.temps;} );
-
+	for_each_n(	vdata.begin(), 100,
+				[& fichierTri](const Fiche & f){ fichierTri << f.prenom << "\t" << f.ville << "\t" << f.age << "\t" << f.temps << endl;} );
     fichierTri.close();
 
 
     // **************************************************
-    // question 3.1
+    // question 3
+	vector<double> difference_temps;
+    transform(	vdata.begin(), vdata.end(), back_inserter(difference_temps),
+				[](const Fiche & f) { return f.temps; });
+    sort(difference_temps.begin(), difference_temps.end());
+    adjacent_difference(difference_temps.begin(), difference_temps.end(), difference_temps.begin());
+    sort(difference_temps.begin(), difference_temps.end());
+    cout << "3.1) Plus petit écart entre deux temps du 100m : " << difference_temps.front() << endl;
+
+    vector<Fiche> jeunes;
+    vector<Fiche> moinsjeunes;
+    partition_copy(	vdata.begin(), vdata.end(), back_inserter(jeunes), back_inserter(moinsjeunes),
+					[](const Fiche & f){	return f.age <= 40;});
+	cout << "3.2)	Age de l'un des jeunes : " << jeunes.back().age << endl;
+	cout << "	Age de l'un des moins jeunes : " << moinsjeunes.back().age << endl;
+    
+    ofstream ordre("ordre.dat");
+    
+    
+    ordre.close();
 
     return 0;
 }
