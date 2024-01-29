@@ -1,4 +1,4 @@
-# include <Eigen/Dense> // installer en rentrant !!!
+#include <Eigen/Dense> // installer en rentrant !!!
 
 using namespace std;
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixDouble;
@@ -46,7 +46,7 @@ MatrixDouble puissance_rapide(const MatrixDouble & M, int n){
 int main(){
     // question 1.3
     MatrixDouble A(3,3);
-    A = {0.4 0.6 0., 0.75 0.25 0., 0. 0. 1.};
+    A = {0.4, 0.6, 0., 0.75, 0.25, 0., 0., 0., 1.};
 
     int n = 100;
     MatrixDouble A_n = puissance_lente(A,n);
