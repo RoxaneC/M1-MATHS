@@ -59,9 +59,9 @@ int main(){
 
     cout << "Matrice A :\n" << A << "\n\n";
 
-    int n = 100;
-    MatrixDouble A_n = puissance_lente(A,n);
-    cout << "Matrice A^" << n << " :\n" << A_n << "\n\n";
+    int nA = 1000;
+    MatrixDouble A_n = puissance_lente(A,nA);
+    cout << "Matrice A^" << nA << " :\n" << A_n << "\n\n";
 
     /* question 1.4 :
     * Pour ne pas créer de copie à chaque appel récursif
@@ -73,10 +73,33 @@ int main(){
     ifstream mat("matrice.dat");
     MatrixDouble B(30,30);
     int coeff;
+    int i=0; int j=0;
     while(mat >> coeff){
-        B << coeff;
+        B(i,j) = coeff;
+        j++;
+        if (j==30){
+			i++;
+			j=0;
+		}
     }
     cout << "Matrice B :\n" << B << "\n\n";
+    
+    int nB = 1000;
+    {
+    auto t1 = chrono::system_clock::now();
+    MatrixDouble B_n_lent = puissance_lente(B,nB);
+    auto t2 = chrono::system_clock::now();
+    chrono::duration<double> tps = t2-t1;
+    cout << "Calcul de B^" << nB << " (algo lent) en : " << tps.count() << "\n";
+	}
+	
+	{
+    auto t1 = chrono::system_clock::now();
+    MatrixDouble B_n_rapide = puissance_rapide(B,nB);
+    auto t2 = chrono::system_clock::now();
+    chrono::duration<double> tps = t2-t1;
+    cout << "Calcul de B^" << nB << " (algo rapide) en : " << tps.count() << "\n";
+	}
 
     return 0;
 }
