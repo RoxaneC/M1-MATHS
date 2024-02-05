@@ -1,7 +1,13 @@
 #include <Eigen/Dense> // mettre '-I /usr/include/eigen3/' à la compilation !!!
+#include <Eigen/Sparse>
+#include <Eigen/Eigenvalues>
+
 #include <iostream>
 #include <fstream>
 #include <chrono>
+#include <vector>
+#include <random>
+#include <ctime>
 
 using namespace std;
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixDouble;
@@ -49,6 +55,22 @@ MatrixDouble puissance_rapide(const MatrixDouble & M, int n){
     }
 }
 
+// question 1.8
+Eigen::SparseMatrix<double> puissance_rapide_sparse(Eigen::SparseMatrix<double> & M, int n){
+    if (n==0){
+        M.setIdentity();
+        return M;
+    } else if (n%2==0){
+        Eigen::SparseMatrix<double> N(M.rows(),M.cols());
+        N = puissance_rapide_sparse(M,n/2);
+        return N*N;
+    } else {
+        Eigen::SparseMatrix<double> N(M.rows(),M.cols());
+        N = puissance_rapide_sparse(M,(n-1)/2);
+        return M*N*N;
+    }
+}
+
 
 int main(){
     // question 1.3
@@ -70,36 +92,81 @@ int main(){
     * Pas tant de différences de temps pour les exposants utilisés */
 
     // question 1.7
+    // question 1.8
     ifstream mat("matrice.dat");
-    MatrixDouble B(30,30);
-    int coeff;
+    MatrixDouble B_Dense(30,30);
+    double coeff;
     int i=0; int j=0;
     while(mat >> coeff){
-        B(i,j) = coeff;
+        B_Dense(i,j) = coeff;
+        j++;
+        if (j==30){
+			i++;
+			j=0;
+		}
+    }    
+    int nB = 1000;
+
+    {
+    auto t1 = chrono::system_clock::now();
+    MatrixDouble B_n_lent = puissance_lente(B_Dense,nB);
+    auto t2 = chrono::system_clock::now();
+    chrono::duration<double> tps = t2-t1;
+    cout << "Calcul de B^" << nB << " (algo lent Dense) en : " << tps.count() << "seconde\n";
+	}
+	
+	{
+    auto t1 = chrono::system_clock::now();
+    MatrixDouble B_n_rapide = puissance_rapide(B_Dense,nB);
+    auto t2 = chrono::system_clock::now();
+    chrono::duration<double> tps = t2-t1;
+    cout << "Calcul de B^" << nB << " (algo rapide Dense) en : " << tps.count() << "seconde\n";
+	}
+
+    // question 1.8
+    Eigen::SparseMatrix<double> B_Sparse(30,30);
+    i=0; j=0;
+    while(mat >> coeff){
+        B_Sparse.coeffRef(i,j) = coeff;
         j++;
         if (j==30){
 			i++;
 			j=0;
 		}
     }
-    cout << "Matrice B :\n" << B << "\n\n";
-    
-    int nB = 1000;
+
     {
     auto t1 = chrono::system_clock::now();
-    MatrixDouble B_n_lent = puissance_lente(B,nB);
+    MatrixDouble B_n_rapide = puissance_rapide(B_Sparse,nB);
     auto t2 = chrono::system_clock::now();
     chrono::duration<double> tps = t2-t1;
-    cout << "Calcul de B^" << nB << " (algo lent) en : " << tps.count() << "\n";
+    cout << "Calcul de B^" << nB << " (algo rapide Sparse) en : " << tps.count() << "seconde\n";
 	}
-	
-	{
-    auto t1 = chrono::system_clock::now();
-    MatrixDouble B_n_rapide = puissance_rapide(B,nB);
-    auto t2 = chrono::system_clock::now();
-    chrono::duration<double> tps = t2-t1;
-    cout << "Calcul de B^" << nB << " (algo rapide) en : " << tps.count() << "\n";
-	}
+
+    // **************************************************
+    // question 2.1
+    int K=20;
+    vector<double> hist(K,0);
+    int n=20; int N=150;
+
+    mt19937_64 Generator(time(NULL));
+    normal_distribution<double> Loi_diag(0,1);
+    normal_distribution<double> Loi_reste(0,2);
+
+    for(int i=0 ; i<n ; i++){
+        MatrixDouble M(N,N);
+        for(int j=0 ; j<N ; j++){
+            for(int k=0 ; k<N ; k++){
+                // simulation
+                M(j,k) = (j==k) ? Loi_diag(Generator) : Loi_reste(Generator);
+            }
+        }
+
+        // calcul spectre
+        Eigen::EigenSolver<MatrixDouble> Solver(M);
+        auto spectrum = Solver.eigenvalues();
+        // spectrum[i].real();
+    }
 
     return 0;
 }
