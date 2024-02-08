@@ -1,6 +1,8 @@
-#include <iostream>
-#include <vector>
-#include <list>
+#ifndef MY_CLASS_PERM
+#define MY_CLASS_PERM
+	#include <iostream>
+	#include <vector>
+	#include <list>
 
 class Permutation{
 	// question 2.1 & 2.2
@@ -27,3 +29,4 @@ class Permutation{
 		friend std::vector<int> operator*(const std::vector<int> &P, const std::vector<int> &P);
 		
 };
+#endif
