@@ -140,7 +140,7 @@ int main(){
     MatrixDouble B_n_rapide = puissance_rapide(B_Sparse,nB);
     auto t2 = chrono::system_clock::now();
     chrono::duration<double> tps = t2-t1;
-    cout << "Calcul de B^" << nB << " (algo rapide Sparse) en : " << tps.count() << "seconde\n";
+    cout << "Calcul de B^" << nB << " (algo rapide Sparse) en : " << tps.count() << "seconde\n\n";
 	}
 
     // **************************************************
@@ -150,22 +150,31 @@ int main(){
     int n=20; int N=150;
 
     mt19937_64 Generator(time(NULL));
+    
     normal_distribution<double> Loi_diag(0,1);
     normal_distribution<double> Loi_reste(0,2);
+    MatrixDouble M(N,N);
 
     for(int i=0 ; i<n ; i++){
-        MatrixDouble M(N,N);
         for(int j=0 ; j<N ; j++){
-            for(int k=0 ; k<N ; k++){
-                // simulation
-                M(j,k) = (j==k) ? Loi_diag(Generator) : Loi_reste(Generator);
+			// simulation diagonale
+			M(j,j) = Loi_diag(Generator);
+            for(int k=j+1 ; k<N ; k++){
+                // simulation hors diagonale
+                double a_jk = Loi_reste(Generator);
+                M(j,k) = a_jk;
+                M(k,j) = a_jk;
             }
         }
-
+        
         // calcul spectre
         Eigen::EigenSolver<MatrixDouble> Solver(M);
         auto spectrum = Solver.eigenvalues();
-        // spectrum[i].real();
+        for(auto s : spectrum){
+			double x = floor( (s.real()/(2.*sqrt(N)) +3)/(6./K));		// normalisation
+			hist[x] += 1./(n*N);
+		}
+		        
     }
 
     return 0;
