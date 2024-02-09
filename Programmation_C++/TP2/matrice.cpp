@@ -12,6 +12,30 @@
 using namespace std;
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixDouble;
 
+// question 2.4(13)
+class Histogramme{
+    private:
+        double a;       // borne inf
+        double b;       // borne sup
+        double delta;       // écart entre les bornes
+        vector<int> bars;       // stock des points par segment
+        int nb_out;     // nb de points hors de l'intervalle
+    public:
+        // Constructeur
+        Histogramme(double _a, double _b, int _N): a(_a), b(_b), delta((b-a)/N), bars(N,0), nb_out(0) {};
+
+        // Méthodes
+        bool operator+=(double x);      // ajoute un pt dans la barre correspondante
+        void print(ofstream & out) const;       // affiche les valeurs de l'histo (?)
+        void reset();       // réinitialise à 0 en gardant les paramètres
+
+        // Accesseurs
+        double lower_bound() const;     // accède à a
+        double upper_bound() const;     // accède à b
+        double nb_boxes() const;        // accède au nb de segments
+        int out_of_domain() const;      // accède à nb_out
+};
+
 // question 1.1
 /* question 1.2 :
 * Il y a n*n calculs ?
@@ -71,6 +95,26 @@ Eigen::SparseMatrix<double> puissance_rapide_sparse(Eigen::SparseMatrix<double> 
     }
 }
 
+// question 2.3(12)
+auto generate_random_spectrum(mt19937_64 & G, int N){
+    normal_distribution<double> Loi_diag(0,1);
+    normal_distribution<double> Loi_reste(0,2);
+    MatrixDouble M(N,N);
+
+    for(int j=0 ; j<N ; j++){
+		// simulation diagonale
+		M(j,j) = Loi_diag(G);
+        for(int k=j+1 ; k<N ; k++){
+            // simulation hors diagonale
+            double a_jk = Loi_reste(G);
+            M(j,k) = a_jk;
+            M(k,j) = a_jk;
+        }
+    }
+
+    return M;
+}
+
 
 int main(){
     // question 1.3
@@ -83,7 +127,7 @@ int main(){
 
     int nA = 1000;
     MatrixDouble A_n = puissance_lente(A,nA);
-    cout << "Matrice A^" << nA << " :\n" << A_n << "\n\n";
+    cout << "Matrice A^" << nA << " (algo lent) :\n" << A_n << "\n\n";
 
     /* question 1.4 :
     * Pour ne pas créer de copie à chaque appel récursif
@@ -112,7 +156,7 @@ int main(){
     MatrixDouble B_n_lent = puissance_lente(B_Dense,nB);
     auto t2 = chrono::system_clock::now();
     chrono::duration<double> tps = t2-t1;
-    cout << "Calcul de B^" << nB << " (algo lent Dense) en : " << tps.count() << "seconde\n";
+    cout << "Calcul de B^" << nB << " (algo lent Dense) en : " << tps.count() << " seconde\n";
 	}
 	
 	{
@@ -120,7 +164,7 @@ int main(){
     MatrixDouble B_n_rapide = puissance_rapide(B_Dense,nB);
     auto t2 = chrono::system_clock::now();
     chrono::duration<double> tps = t2-t1;
-    cout << "Calcul de B^" << nB << " (algo rapide Dense) en : " << tps.count() << "seconde\n";
+    cout << "Calcul de B^" << nB << " (algo rapide Dense) en : " << tps.count() << " seconde\n";
 	}
 
     // question 1.8
@@ -140,42 +184,36 @@ int main(){
     MatrixDouble B_n_rapide = puissance_rapide(B_Sparse,nB);
     auto t2 = chrono::system_clock::now();
     chrono::duration<double> tps = t2-t1;
-    cout << "Calcul de B^" << nB << " (algo rapide Sparse) en : " << tps.count() << "seconde\n\n";
+    cout << "Calcul de B^" << nB << " (algo rapide Sparse) en : " << tps.count() << " seconde\n\n";
 	}
 
     // **************************************************
-    // question 2.1
+    // question 2.1(10)
     int K=20;
     vector<double> hist(K,0);
     int n=20; int N=150;
+    int a=-3; int b=3;
 
-    mt19937_64 Generator(time(NULL));
-    
-    normal_distribution<double> Loi_diag(0,1);
-    normal_distribution<double> Loi_reste(0,2);
-    MatrixDouble M(N,N);
+    mt19937_64 G(time(NULL));
 
     for(int i=0 ; i<n ; i++){
-        for(int j=0 ; j<N ; j++){
-			// simulation diagonale
-			M(j,j) = Loi_diag(Generator);
-            for(int k=j+1 ; k<N ; k++){
-                // simulation hors diagonale
-                double a_jk = Loi_reste(Generator);
-                M(j,k) = a_jk;
-                M(k,j) = a_jk;
-            }
-        }
+        MatrixDouble M = generate_random_spectrum(G,N);
         
         // calcul spectre
         Eigen::EigenSolver<MatrixDouble> Solver(M);
         auto spectrum = Solver.eigenvalues();
         for(auto s : spectrum){
-			double x = floor( (s.real()/(2.*sqrt(N)) +3)/(6./K));		// normalisation
-			hist[x] += 1./(n*N);
-		}
-		        
+            double vp_norm = s.real()/(2.*sqrt(N));
+			int x = floor((vp_norm +(b-a)/2)/(6./K));		// normalisation
+			hist[x] += ((vp_norm<b) && (vp_norm>=a)) ? 1./(n*N) : 0;
+		}		        
     }
+
+    ofstream histo_f("eigenvalues.dat");
+    for(int i=0 ; i<K ; i++){
+        histo_f << a+(2*i+1)*(6./K)/2 << "\t" << hist[i] << "\n";
+    }
+    histo_f.close();
 
     return 0;
 }

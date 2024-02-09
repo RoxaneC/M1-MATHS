@@ -2,6 +2,7 @@
 #define MY_CLASS_PERM
 	#include <iostream>
 	#include <vector>
+	#include <random>
 	#include <list>
 
 class Permutation{
@@ -26,7 +27,7 @@ class Permutation{
 
 		// Opérateurs
 		friend ostream & operator<<(std::ostream &o, const Permutation &P);
-		friend std::vector<int> operator*(const std::vector<int> &P, const std::vector<int> &P);
+		friend std::vector<int> operator*(const std::vector<int> &P1, const std::vector<int> &P2);
 		
 };
 #endif
