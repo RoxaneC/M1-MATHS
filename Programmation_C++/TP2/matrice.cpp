@@ -22,7 +22,7 @@ class Histogramme{
         int nb_out;     // nb de points hors de l'intervalle
     public:
         // Constructeur
-        Histogramme(double _a, double _b, int _N): a(_a), b(_b), delta((b-a)/N), bars(N,0), nb_out(0) {};
+        Histogramme(double _a, double _b, int _N): a(_a), b(_b), delta((b-a)/_N), bars(_N,0), nb_out(0) {};
 
         // Méthodes
         bool operator+=(double x);      // ajoute un pt dans la barre correspondante
@@ -30,12 +30,38 @@ class Histogramme{
         void reset();       // réinitialise à 0 en gardant les paramètres
 
         // Accesseurs
-        double lower_bound() const;     // accède à a
-        double upper_bound() const;     // accède à b
-        double nb_boxes() const;        // accède au nb de segments
-        int out_of_domain() const;      // accède à nb_out
+        double lower_bound() const {    return a; };     // accède à a
+        double upper_bound() const {   return b; };     // accède à b
+        double nb_boxes() const {   return bars.size(); };        // accède au nb de segments
+        int out_of_domain() const { return nb_out; };      // accède à nb_out
 };
 
+bool Histogramme::operator+=(double x){
+    //
+    int x_norm = floor((x-a)/delta);     // normalisation
+    if ((x<b) and (x>=a)){
+        bars[x_norm]++;
+        return true;
+    } else {
+        nb_out++;
+        return false;
+    }
+}
+
+void Histogramme::print(ofstream & out) const {
+    double nb_total_point = nb_out + accumulate(bars.begin(), bars.end(), 0.);
+    for(int i=0 ; i<bars.size() ; i++){
+        out << a+(2*i+1)*(delta/2) << " :\t" << bars[i]/nb_total_point << "\n";
+    }
+}
+
+void Histogramme::reset(){
+    nb_out = 0;
+    fill(bars.begin(), bars.end(), 0);
+}
+
+
+// **************************************************
 // question 1.1
 /* question 1.2 :
 * Il y a n*n calculs ?
@@ -112,7 +138,9 @@ auto generate_random_spectrum(mt19937_64 & G, int N){
         }
     }
 
-    return M;
+    Eigen::EigenSolver<MatrixDouble> Solver(M);
+    auto spectrum = Solver.eigenvalues();
+    return spectrum;
 }
 
 
@@ -190,29 +218,22 @@ int main(){
     // **************************************************
     // question 2.1(10)
     int K=20;
-    vector<double> hist(K,0);
     int n=20; int N=150;
     int a=-3; int b=3;
 
+    Histogramme histo(a,b,K);
     mt19937_64 G(time(NULL));
 
     for(int i=0 ; i<n ; i++){
-        MatrixDouble M = generate_random_spectrum(G,N);
-        
-        // calcul spectre
-        Eigen::EigenSolver<MatrixDouble> Solver(M);
-        auto spectrum = Solver.eigenvalues();
+        auto spectrum = generate_random_spectrum(G,N);
         for(auto s : spectrum){
             double vp_norm = s.real()/(2.*sqrt(N));
-			int x = floor((vp_norm +(b-a)/2)/(6./K));		// normalisation
-			hist[x] += ((vp_norm<b) && (vp_norm>=a)) ? 1./(n*N) : 0;
+			histo+=vp_norm;
 		}		        
     }
 
-    ofstream histo_f("eigenvalues.dat");
-    for(int i=0 ; i<K ; i++){
-        histo_f << a+(2*i+1)*(6./K)/2 << "\t" << hist[i] << "\n";
-    }
+    ofstream histo_f("eigenvalues_class.dat");
+    histo.print(histo_f);
     histo_f.close();
 
     return 0;
