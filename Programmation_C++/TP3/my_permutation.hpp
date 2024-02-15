@@ -28,7 +28,7 @@ class Permutation{
 		// Opérateurs
 		friend std::ostream & operator<<(std::ostream &o, const Permutation &P);
 		friend std::istream & operator>>(std::istream &i, Permutation &P);
-		friend std::vector<int> operator*(const std::vector<int> &P1, const std::vector<int> &P2);
+		friend Permutation operator*(const Permutation &P1, const Permutation &P2);
 		// question 2.9
 		int operator[](int i) const {	return images[i]; };
 
