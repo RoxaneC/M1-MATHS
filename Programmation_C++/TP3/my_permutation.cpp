@@ -42,20 +42,22 @@ istream & operator>>(std::istream &i, Permutation &P){
 
 // question 2.13
 Permutation operator*(const Permutation &P1, const Permutation &P2){
-	vector<int> vect_res;
+	Permutation perm_res;
 	int taille1 = P1.n;
 	int taille2 = P2.n;
 	
 	if (taille1 == taille2){
-		vect_res.resize(taille2);
+		perm_res.images.resize(taille2);
 		for(int i=0 ; i<taille1 ; i++){
-			vect_res[i] = P1.images[ P2.images[i] ];
+			perm_res.images[i] = P1[ P2[i] ];
 		}
 	} else if (taille1 < taille2) {
 		//
+		Permutation small_res(taille1);
+		small_res = P1*P2;
 	}
 	
-	return vect_res;
+	return perm_res;
 }
 
 
@@ -84,7 +86,7 @@ int main(){
 	
 	// question 2.12 : pourquoi pas ?
 	
-	// question 2.13
+	// test question 2.13
 	for(int i=0; i<=6; ++i) {
 		std::cout << "a^" << i << "\nb >> " << perm_test_vect << "\n";
 		perm_test_vect = perm_test_vect*perm_test_out;
