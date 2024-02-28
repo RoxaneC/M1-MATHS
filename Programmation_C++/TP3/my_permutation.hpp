@@ -19,7 +19,7 @@ class Permutation{
 		Permutation(int _n, std::mt19937 g);		// génération de taille n0 avec aléatoire g
 		
 		// Méthodes
-		std::vector<int> fixed_points() const;
+		std::list<int> fixed_points() const;
 		// std::list<Cycle> cycles() const;
 		int order() const;
 		Permutation inverse();
