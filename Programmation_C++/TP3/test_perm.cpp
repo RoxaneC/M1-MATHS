@@ -36,6 +36,13 @@ int main () {
     Permutation u=s*t.inverse();
     std::cout << "L'ordre de la permutation s*t^-1 est égal à "
         << u.order() << "\n";
+    
+    /* RESULTAT -7542714631..... !!!!
+    * parce que l'ordre est trop grand, donc OOB
+    * Solution ? pas vraiment, ne fonctionne que pour les "petites" permutations;
+    * ou bibliothèque spécifique pour coder avec bcp de RAM
+    * parce que les cycles de u sont de longueurs :
+    * --> 11_307 , 1_739 , 1_254 , 1_049 , 26 , 153 , 682 , 79 , 30 , 3 , 51 , 8 , 3 */
         
  // Extraction des cycles de u
     std::list<Cycle> l = u.cycles();
@@ -44,6 +51,7 @@ int main () {
         std::max_element(l.begin(), l.end())->order() << "\n";
         //attention, cela utilise < sur des Cycle !
         
+/*
 // ******* Troisieme partie: génération aléatoire et Monte-Carlo
     std::mt19937 g(time(nullptr));
     unsigned n=100;
@@ -54,6 +62,10 @@ int main () {
     }
     std::cout << "La proportion de dérangements est environ "
         << nb_derang/double(nb_echant) << "\n";
+        
+    */
 
     return 0;
 }
+
+// Résultat : 1/e ie environ 0,36 ou 0,37
