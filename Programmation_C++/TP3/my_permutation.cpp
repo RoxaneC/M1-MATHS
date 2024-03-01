@@ -38,6 +38,7 @@ Permutation::Permutation(int _n): n(_n), images(_n){
 Permutation::Permutation(const vector<int> &v): n(v.size()), images(v) {};
 
 // question 3.29
+// Référence pour qu'on garde la même seed pour le générateur, plutôt que d'avoir une copie avec nouvelle seed
 Permutation::Permutation(int _n, std::mt19937 &g): n(_n), images(_n){
 	//
 	for(int i=0 ; i<n ; i++)	images[i]=i;
@@ -70,6 +71,20 @@ Permutation Permutation::inverse() const {
 	return perm_res;
 };
 
+// question 3.18
+long int Permutation::order() const {
+	list<Cycle> list_cycles = cycles();
+	/* long int ord = 1
+	for(const Cycle &C : list_cycles){
+		ord = ppcm(ord, C.order());
+	} */
+
+	long int ord = accumulate(	list_cycles.begin(), list_cycles.end(), long(1),
+				[](long int o, const Cycle &C){	return ppcm(o, C.order());});
+
+	return ord;
+};
+
 // question 3.20
 list<Cycle> Permutation::cycles() const {
 	// créer list de cycles vide
@@ -87,9 +102,6 @@ list<Cycle> Permutation::cycles() const {
 		int s = *(S.begin());
 		S.erase(S.begin());
 
-		//
-		list<int> pts_fixe = fixed_points();
-
 		if( s != images[s] ){
 			Cycle C;
 
@@ -104,20 +116,6 @@ list<Cycle> Permutation::cycles() const {
 		}
 	}
 	return L;
-};
-
-// question 3.18
-long int Permutation::order() const {
-	list<Cycle> list_cycles = cycles();
-	/* long int ord = 1
-	for(const Cycle &C : list_cycles){
-		ord = ppcm(ord, C.order());
-	} */
-
-	long int ord = accumulate(	list_cycles.begin(), list_cycles.end(), long(1),
-				[](long int o, const Cycle &C){	return ppcm(o, C.order());});
-
-	return ord;
 };
 
 
@@ -198,13 +196,25 @@ ostream & operator<<(ostream &o, const Cycle &C){
 // question 3.24
 bool operator<(const Cycle &C1, const Cycle &C2){
 	if ( C1.elem.size() == C2.elem.size() ) {
-		//
+		return lexicographical_compare(C1.elem.begin(), C1.elem.end(), C2.elem.begin(), C2.elem.end());
 	} else {
-		//
-
+		return C1.elem.size() < C2.elem.size();
 	}
 };
 
+// question 3.25
+vector<int>::iterator Cycle::find(int i) const{
+	//
+};
+
+// question 3.37
+Cycle Cycle::inverse() const {
+	Cycle C;
+	for(int i=elem.size(); i>0 ; i--){
+		C.add_last_point(elem[i]);
+	}
+	return C;
+};
 
 
 
@@ -245,7 +255,8 @@ int main(){
 
 	// test question 3.15
 	cout << "\nPermutation d'origine : " << a << "\n";
-	cout << "Permutation inverse : " << a.inverse() << "\n\n";
+	cout << "Permutation inverse : " << a.inverse() << "\n";
+	cout << "Permutation inverse de l'inverse : " << a.inverse().inverse() << "\n\n";
 
 	// ******* Deuxieme partie: un peu plus d'algorithmique
 	// lecture de deux permutations dans deux fichiers
@@ -262,11 +273,12 @@ int main(){
 	cout << "Les cycles de a sont : ";
 	for(const auto &c : la)		cout << c << " ; ";
 	cout << "\nL'ordre de la permutaiton a est égale à " << a.order() << "\n";
+	cout << "Inverse du premier cycle de a : " << (*(la.begin())).inverse() << "\n\n";
 
 	// Calcul de u=s * t^{-1} et son ordre
     Permutation u = s*t.inverse();
 	list<Cycle> lu = u.cycles();
-	cout << "Les cycles de u sont : ";
+	cout << "Les ordres des cycles de u sont : ";
 	for(const auto &c : lu)		cout << c.order() << " ; ";
     cout << "\nL'ordre de la permutation s*t^-1 est égal à " << u.order() << "\n";
     
@@ -278,14 +290,13 @@ int main(){
     * --> 11_307 , 1_739 , 1_254 , 1_049 , 26 , 153 , 682 , 79 , 30 , 3 , 51 , 8 , 3 */
         
 	// Extraction des cycles de u
-    std::list<Cycle> l = u.cycles();
-    std::cout << "Cette permutation a " << l.size() <<
-        "cycles, dont le plus grand a pour longueur " <<
-        max_element(l.begin(), l.end())->order() << "\n";
+    cout << "Cette permutation a " << lu.size() <<
+        " cycles, dont le plus grand a pour longueur " <<
+        max_element(lu.begin(), lu.end())->order() << "\n\n";
         //attention, cela utilise < sur des Cycle !
-        
-	/*
+
 	// ******* Troisieme partie: génération aléatoire et Monte-Carlo
+	// question 3.30
     std::mt19937 g(time(nullptr));
     unsigned n=100;
     unsigned nb_echant = 10000;
@@ -295,7 +306,6 @@ int main(){
     }
     std::cout << "La proportion de dérangements est environ "
         << nb_derang/double(nb_echant) << "\n";
-    */
 
 	return 0;
 }
