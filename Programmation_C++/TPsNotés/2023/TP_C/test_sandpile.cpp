@@ -4,6 +4,7 @@
 #include <list>
 #include <utility>
 #include <fstream>
+#include <iostream>
 
 using upair=std::pair<unsigned, unsigned>; //raccourci pour les paires d'entiers
 using namespace std;
