@@ -20,7 +20,7 @@ int main() {
 
     // question 13
     s.stabil();
-    cout << s.volume_total();
+    // cout << s.volume_total();
     ofstream file("stab_8x8_5.txt");
     file << s.nb_total_ebouls() << "\n";    // 564 OK
     file << s;
