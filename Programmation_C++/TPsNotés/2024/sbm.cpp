@@ -53,9 +53,9 @@ ostream & operator<<(ostream &out, const Graph &G){
 // je ne comprends pas bien le calcul de la proba à partir de notre alpha
 Graph SBM::generate_graph(int n, std::mt19937_64 &G) const {
 
-    discrete_distribution D(m_pi.begin(), m_pi.end());
+    discrete_distribution<int> Loi_Z(m_pi.begin(), m_pi.end());
     VectInt Z(n);
-    for(int i=0 ; i<n ; i++)    Z(i) = D(G);
+    for(int i=0 ; i<n ; i++)    Z(i) = Loi_Z(G);
 
 
     bernoulli_distribution Ber(m_alpha);
@@ -90,6 +90,7 @@ VectInt Graph::count_statistics_s() const{
 MatInt Graph::count_statistics_a() const{
     int K = nb_blocs();
 
+    // pour permettre de rendre le résultat nul quand i=j
     MatInt A(m_adj);
     for(int i=0 ; i<nb_noeuds() ; i++){
         A(i,i)=0;
@@ -106,16 +107,16 @@ MatInt Graph::count_statistics_a() const{
 
     return a;
 };
-/* Je ne sais pas comment faire -m_adj sans boucle for */
 MatInt Graph::count_statistics_b() const{
     int K = nb_blocs();
 
+    // pour permettre de rendre le résultat nul quand i=j
     MatInt A(m_adj);
     for(int i=0 ; i<nb_noeuds() ; i++){
         A(i,i)=1;
     }
-    MatInt ones = MatInt::Ones(nb_noeuds(), nb_noeuds());
 
+    MatInt ones = MatInt::Ones(nb_noeuds(), nb_noeuds());
     MatInt Z = one_hot_Z();
     MatInt b = Z.transpose()*(ones-A)*Z;
 
