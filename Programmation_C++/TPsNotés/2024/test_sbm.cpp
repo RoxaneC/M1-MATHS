@@ -28,10 +28,11 @@ int main(){
     f.close();
 
     // question 13
-    // Pas testé parce que mauvaise compréhension du calcul de la proba
-    /* vector<double> pi{0.5 , 0.3 , 0.2};
+    // Pas sûr, mauvaise compréhension du calcul de la proba
+    vector<double> pi{0.5 , 0.3 , 0.2};
     SBM my_sbm(pi, 0.5, true);
-    Graph graph_by_sbm = my_sbm.generate_graph(10, G); */
+    Graph graph_by_sbm = my_sbm.generate_graph(10, G);
+    cout << "Graph aléatoire :\n" << graph_by_sbm << "\n\n";
 
     // question 15
     cout << f_graph.one_hot_Z() << "\n\n";
