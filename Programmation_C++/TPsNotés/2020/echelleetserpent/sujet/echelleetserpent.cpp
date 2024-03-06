@@ -36,7 +36,7 @@ ostream & operator<<(ostream &out, const SnakesAndLadders &SL){
 };
 
 // question 9
-int SnakesAndLadders::roll_dice(mt19937 &G){
+int SnakesAndLadders::roll_dice(mt19937 &G) const{
     uniform_int_distribution<int> U(1,6);
     int dice = U(G);
     return dice;
@@ -49,10 +49,11 @@ bool SnakesAndLadders::one_step(mt19937 &G, int j){
     // cout << "Résultat du dé : " << dice << "\n";
 
     int new_pos = get_position(j) + dice;
+    players[j].n_step++;
 
     // cout << "Le joueur passe de la position " << get_position(j);
 
-    if(new_pos>n_board){
+    if(new_pos>=n_board-1){
         return true;
     } else {
         new_pos = board[new_pos];
@@ -63,5 +64,30 @@ bool SnakesAndLadders::one_step(mt19937 &G, int j){
 
         // cout << " à la position " << get_position(j) << "\n";
         return false;
+    }
+};
+
+// question 12
+int SnakesAndLadders::game(mt19937 &G){
+    bool game_ended = false;
+    int winner;
+
+    while(!game_ended){
+        for(int i=0 ; i<n_players ; i++){
+            if(one_step(G,i) && !game_ended){
+                winner = i;
+                game_ended = true;
+            }
+        }
+    }
+
+    return winner;
+};
+
+// question 13
+void SnakesAndLadders::reset(){
+    for(int i=0 ; i<n_players ; i++){
+        players[i].position = 0;
+        players[i].n_step = 0;
     }
 };

@@ -40,10 +40,16 @@ class SnakesAndLadders{
         friend std::ostream & operator<<(std::ostream &out, const SnakesAndLadders &SL);
 
         // question 9
-        int roll_dice(std::mt19937 &G);
+        int roll_dice(std::mt19937 &G) const;
 
         // question 10
         bool one_step(std::mt19937 &G, int j);
+
+        // question 12
+        int game(std::mt19937 &G);
+
+        // question 13
+        void reset();
 };
 
 #endif
