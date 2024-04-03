@@ -1,5 +1,6 @@
 #include "monte_carlo.hpp"
 #include "pi.hpp"
+#include "chi_deux.hpp"
 
 #include <iostream>
 #include <cmath>
@@ -77,6 +78,18 @@ int main(){
 	int nb_ech = 100000;
 	normal_distribution<double> N;
 	MonteCarlo(H, N, id, Gen, nb_ech);
+
+	ofstream file("Histogramme.dat");
+	file << H;
+	file.close();
+
+	// question 5.15
+	Histogramme H_Chi3(0, 10, 50);
+	Histogramme H_Chi6(0, 10, 50);
+	Chi2_distribution<double, 3> Chi3();
+	Chi2_distribution<double, 6> Chi6();
+	MonteCarlo(H_Chi3, Chi3, id, Gen, nb_ech);
+	MonteCarlo(H_Chi6, Chi6, id, Gen, nb_ech);
 
 	ofstream file("Histogramme.dat");
 	file << H;

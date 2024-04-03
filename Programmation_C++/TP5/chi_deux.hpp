@@ -4,16 +4,28 @@
 #include <random>
 
 // question 5.14
-template <class Real, int k>
+template <class REAL, int k>
 class Chi2_distribution{
     private:
-        std::normal_distribution<Real> N;
+        std::normal_distribution<REAL> N;
 
     public:
-        Chi2_distribution(): N();
+        Chi2_distribution(): N(){};
         template <class RNG>
-        Real operator()(RNG &G);
+        REAL operator()(RNG &G);
 
+};
+
+// question 5.14
+template <class REAL, int k>
+template <class RNG>
+REAL Chi2_distribution<REAL, k>::operator()(RNG &G){
+    REAL Y;
+    for(int i=0 ; i<k ; i++){
+        REAL X = N(G);
+        Y += X*X;
+    }
+    return Y;
 };
 
 #endif
