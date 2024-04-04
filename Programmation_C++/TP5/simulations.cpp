@@ -2,6 +2,7 @@
 #include "pi.hpp"
 #include "chi_deux.hpp"
 
+
 #include <iostream>
 #include <cmath>
 #include <random>
@@ -86,15 +87,18 @@ int main(){
 	// question 5.15
 	Histogramme H_Chi3(0, 10, 50);
 	Histogramme H_Chi6(0, 10, 50);
-	Chi2_distribution<double, 3> Chi3();
-	Chi2_distribution<double, 6> Chi6();
+	Chi2_distribution<double, 3> Chi3;
+	Chi2_distribution<double, 6> Chi6;
 	MonteCarlo(H_Chi3, Chi3, id, Gen, nb_ech);
 	MonteCarlo(H_Chi6, Chi6, id, Gen, nb_ech);
 
-	ofstream file("Histogramme.dat");
-	file << H;
-	file.close();
+	ofstream file_Chi3("Histogramme_Chi3.dat");
+	file_Chi3 << H_Chi3;
+	file_Chi3.close();
 
-	
+	ofstream file_Chi6("Histogramme_Chi6.dat");
+	file_Chi6 << H_Chi6;
+	file_Chi6.close();
+
 	return 0;
 }

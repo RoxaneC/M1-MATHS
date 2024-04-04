@@ -25,16 +25,17 @@ int main(){
 	affiche_monome(std::cout, a, 3);
 	std::cout << std::endl; */
 	std::cout << "p1 : " << p1 << std::endl;
+	std::cout << "p2 : " << p2 << std::endl;
 	
-	/*
+	
 	//Deuxième partie
 	// Somme, différénce, produit
 	Polynome<int> sum = p1+p2;
 	Polynome<int> diff = p1-p2;
-	Polynome<int> prod = p1*p2;
+	//Polynome<int> prod = p1*p2;
 	std::cout << "Somme : " << sum << std::endl;
 	std::cout << "Différence : " << diff << std::endl;
-	std::cout << "Produit : " << prod << std::endl;
+	/*std::cout << "Produit : " << prod << std::endl;
 
 	// Division et reste
 	Polynome<int> div = p1/p2;

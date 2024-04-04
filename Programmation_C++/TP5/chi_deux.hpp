@@ -1,5 +1,5 @@
-#ifndef MY_PI
-#define MY_PI
+#ifndef MY_CHI
+#define MY_CHI
 
 #include <random>
 
