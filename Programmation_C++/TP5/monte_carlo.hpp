@@ -51,7 +51,7 @@ class Histogramme{
 		void operator+=(double x);
 		void operator/=(unsigned int n);
 		// question 5.12
-		friend std::ostream & operator<<(std::ostream &o,const Histogramme &H);
+		friend std::ostream & operator<<(std::ostream &o, const Histogramme &H);
 
 };
 

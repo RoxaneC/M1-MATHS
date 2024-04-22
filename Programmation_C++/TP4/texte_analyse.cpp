@@ -117,7 +117,7 @@ int main(){
     // question 4.15
     auto more_12_letters = [](const string &s){ return s.size()>=12; };
     auto more_13_time = [](const int i){    return i>=13; };
-    auto no_letter_e = [](const string &s){ return !s.contains('e'); };     // c++23
+    auto no_letter_e = [](const string &s){ return !s.contains('e'); };     // -std='c++23'
     auto last_letter_s = [](const string &s){   return s.back()!='s'; };
 
     cout << "Question 4.15 :\t";

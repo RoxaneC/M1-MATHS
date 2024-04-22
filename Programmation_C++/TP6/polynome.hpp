@@ -36,7 +36,7 @@ bool is_one(double a){
 
 // question 6.3
 /* bool is_zero(std::complex<T> a){
-	return std::abs(a)<=1e-15;
+	return std::abs(a.real())<=1e-15;
 };
 bool is_one(double a){
 	return std::abs(a-1)<=1e-15;
@@ -63,14 +63,14 @@ class Polynome {
 		int degre() const {	return n; };
 		// question 6.7
 		T operator[](int i) const {	return (i <= n+1) ? coeff[i] : 0; };
-		// question 6.10
+		// question 6.11
 		friend std::ostream & operator<< <>(std::ostream &o, const Polynome<T> &P);
 		// question 6.15
 		friend Polynome<T> operator+ <>(const Polynome<T> &P1, const Polynome<T> &P2);
 		friend Polynome<T> operator- <>(const Polynome<T> &P1, const Polynome<T> &P2);
 };
 
-// coder dans le cpp plutôt
+// coder dans le cpp plutôt !
 // question 6.5
 template <class T>
 Polynome<T>::Polynome(T a, int m): n(m), coeff(m+1, 0){
@@ -160,29 +160,32 @@ Polynome<T> operator-(const Polynome<T> &P1, const Polynome<T> &P2){
 #endif
 
 
-// 28/03
 // POUR DU DEBUG :
 // std::cout << .... << "\n";		/!\ memoire tampon ie n'affiche pas immediatement l'information
 // ---> std::cout << .... << std::endl();
-// ---> std::flush();
+// OU ---> std::flush();
 
 
 // RELATION D'AMITIÉ avec classes (1) :
 // ---> template <typename T>
-// ---> Polynome<T>
+// ---> Polynome {
 // ---> blabla
 // ---> friend (+) template avec T remplacé par une autre variable muette
+// ---> };
 // en particulier amitié pour tous les types possible (question 6.10)
+// --> ex : template <typename U> friend std::ostream & operator<<(std::ostream &o, const Polynome<U> &P);
 
 // RELATION D'AMITIÉ avec classes (2) :
 // ---> template <class T> Polynome;
-// ---> Polynome<T>
+// ---> template <class T>
+// ---> Polynome {
 // ---> blabla
 // ---> friend (+) T dans déclaration
+// ---> };
 // ---> et ajouter les chevrons dans déclaration dans la classe /!\ operator_ <> /!\ PAR COEUR
 // amitié uniquement pour son propre type T (question 6.11)
+// --> ex : friend std::ostream & operator<< <>(std::ostream &o, const Polynome<T> &P);
 
 
-// 04/04
 // (T) x ---> opérateur de conversion
 // T(x) ---> constructeur

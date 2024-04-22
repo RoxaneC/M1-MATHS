@@ -20,7 +20,7 @@ class Chi2_distribution{
 template <class REAL, int k>
 template <class RNG>
 REAL Chi2_distribution<REAL, k>::operator()(RNG &G){
-    REAL Y;
+    REAL Y = REAL(0);
     for(int i=0 ; i<k ; i++){
         REAL X = N(G);
         Y += X*X;

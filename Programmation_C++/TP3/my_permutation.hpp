@@ -35,6 +35,7 @@ class Permutation{
 		friend Permutation operator*(const Permutation &P1, const Permutation &P2);
 		// question 3.9
 		int operator[](int i) const {	return images[i]; };
+		// question 3.10 : pour ne pas casser l'objet Permutation
 
 		// Accesseurs
 		// question 3.8

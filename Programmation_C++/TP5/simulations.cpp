@@ -1,6 +1,7 @@
 #include "monte_carlo.hpp"
 #include "pi.hpp"
 #include "chi_deux.hpp"
+#include "markov_2.hpp"
 
 
 #include <iostream>
@@ -9,7 +10,7 @@
 #include <fstream>
 
 using namespace std;
-auto id = [](auto x){	return x;};
+auto id = [](auto x){	return x;};		// fonction identité
 
 // question 5.11
 void Histogramme::operator+=(double x){
@@ -25,7 +26,7 @@ void Histogramme::operator/=(unsigned int n){
 };
 
 // question 5.12
-ostream & operator<<(ostream &o,const Histogramme &H){
+ostream & operator<<(ostream &o, const Histogramme &H){
 	int compt = 0;
 	for(double d : H.echantillon){
 		o << compt << "\t" << d << "\n";
@@ -100,5 +101,17 @@ int main(){
 	file_Chi6 << H_Chi6;
 	file_Chi6.close();
 
+	// question 5.17
+	Markov2states Markov;
+	Stat2states StatM;
+	MonteCarlo(StatM, Markov, id, Gen, nb_ech);
+	cout << "5.17)\n" << StatM;
+
 	return 0;
 }
+
+
+
+// Générateur : espace de proba unique
+// plusieurs générateurs ---> calcul parallèle
+// attention à la période des générateurs multiples

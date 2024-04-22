@@ -170,7 +170,7 @@ Permutation operator*(const Permutation &P1, const Permutation &P2){
 
 		for(int i=0 ; i<taille1 ; i++){
 			if (i<taille2){
-				perm_res.images[i] = P2[ P1[i] ];
+				perm_res.images[i] = P1[ P2[i] ];
 			} else {
 				perm_res.images[i] = P1[i];
 			}
