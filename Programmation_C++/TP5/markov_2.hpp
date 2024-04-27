@@ -25,8 +25,7 @@ class Markov2states{
 template <class RNG>
 int Markov2states::operator()(RNG &G){
     if(x==1)    x += Ua(G);
-    if(x==2)    x -= Ub(G);
-    // std::cout << x << ", ";
+    else if(x==2)    x -= Ub(G);
     return x;
 };
 
@@ -43,8 +42,8 @@ class Stat2states{
 };
 
 void Stat2states::operator+=(const int x){
-    if(x==1)    visit1++;
-    if(x==2)    visit2++;
+    if(x==1)    visit1+=1.;
+    if(x==2)    visit2+=1.;
 };
 
 std::ostream & operator<<(std::ostream &o, const Stat2states &S){

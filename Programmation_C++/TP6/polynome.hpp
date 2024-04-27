@@ -8,11 +8,13 @@
 #include <algorithm>
 #include <iterator>
 #include <string>
+#include <iostream>
 
 template <class T> class Polynome;
 template <class T> std::ostream & operator<<(std::ostream &o, const Polynome<T> &P);
 template <class T> Polynome<T> operator+(const Polynome<T> &P1, const Polynome<T> &P2);
 template <class T> Polynome<T> operator-(const Polynome<T> &P1, const Polynome<T> &P2);
+template <class T> Polynome<T> operator*(const Polynome<T> &P1, const Polynome<T> &P2);
 
 // question 6.1
 template <typename T>
@@ -68,6 +70,8 @@ class Polynome {
 		// question 6.15
 		friend Polynome<T> operator+ <>(const Polynome<T> &P1, const Polynome<T> &P2);
 		friend Polynome<T> operator- <>(const Polynome<T> &P1, const Polynome<T> &P2);
+		// question 6.16
+		friend Polynome<T> operator* <>(const Polynome<T> &P1, const Polynome<T> &P2);
 };
 
 // coder dans le cpp plutôt !
@@ -157,35 +161,22 @@ Polynome<T> operator-(const Polynome<T> &P1, const Polynome<T> &P2){
 	}
 };
 
+// question 6.16
+template <typename T>
+Polynome<T> operator*(const Polynome<T> &P1, const Polynome<T> &P2){
+	int l = P1.degre() + P2.degre() +1;
+	std::vector<T> c(l, 0);
+
+	for(int k=0 ; k<l ; k++){
+		for(int i=0 ; i<P1.degre()+1 ; i++){
+			for(int j=0 ; j<P2.degre()+1 ; j++){
+				c[k] += (i+j == k) ? P1[i]*P2[j] : 0;
+			}
+		}
+	}
+
+	Polynome<T> new_P(c);
+	return new_P;
+};
+
 #endif
-
-
-// POUR DU DEBUG :
-// std::cout << .... << "\n";		/!\ memoire tampon ie n'affiche pas immediatement l'information
-// ---> std::cout << .... << std::endl();
-// OU ---> std::flush();
-
-
-// RELATION D'AMITIÉ avec classes (1) :
-// ---> template <typename T>
-// ---> Polynome {
-// ---> blabla
-// ---> friend (+) template avec T remplacé par une autre variable muette
-// ---> };
-// en particulier amitié pour tous les types possible (question 6.10)
-// --> ex : template <typename U> friend std::ostream & operator<<(std::ostream &o, const Polynome<U> &P);
-
-// RELATION D'AMITIÉ avec classes (2) :
-// ---> template <class T> Polynome;
-// ---> template <class T>
-// ---> Polynome {
-// ---> blabla
-// ---> friend (+) T dans déclaration
-// ---> };
-// ---> et ajouter les chevrons dans déclaration dans la classe /!\ operator_ <> /!\ PAR COEUR
-// amitié uniquement pour son propre type T (question 6.11)
-// --> ex : friend std::ostream & operator<< <>(std::ostream &o, const Polynome<T> &P);
-
-
-// (T) x ---> opérateur de conversion
-// T(x) ---> constructeur
