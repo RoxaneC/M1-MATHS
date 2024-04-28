@@ -28,7 +28,7 @@ void Histogramme::operator/=(unsigned int n){
 // question 5.12
 ostream & operator<<(ostream &o, const Histogramme &H){
 	int compt = 0;
-	for(double d : H.echantillon){
+	for(const double d : H.echantillon){
 		o << H.lbound+compt*H.box_width << "\t" << d << "\n";
 		compt++;
 	}

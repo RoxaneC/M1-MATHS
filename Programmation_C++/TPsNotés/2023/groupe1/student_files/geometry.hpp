@@ -9,7 +9,8 @@ class Segment {
 		K left;
 		K right;
 	public:
-		Segment(K l,K r);
-		bool contains(K n) const;
+		// question 8
+		Segment(K l,K r): left(l), right(r) {};
+		bool contains(K n) const {	return (left<=n && n<=right); };
 };
 #endif
