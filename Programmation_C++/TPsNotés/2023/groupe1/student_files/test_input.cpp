@@ -6,7 +6,8 @@
 
 using namespace std;
 
-#include "fma.cpp"
+#include "fma.hpp"
+#include "geometry.hpp"
 #include <fstream>
 #include <cmath>
 

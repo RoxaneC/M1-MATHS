@@ -1,0 +1,103 @@
+\documentclass[10pt]{article}
+\usepackage{../../../../lib/math-book-dsimon}
+\usepackage{../../../../lib/programmation-dsimon}
+\usepackage{booktabs}
+\newcounter{questionnumber}
+\newcommand{\question}{\stepcounter{questionnumber}\paragraph{\thequestionnumber.}}
+
+\DeclareMathOperator{\grad}{grad}
+
+\begin{document}
+
+\hrule \vspace*{5pt} \noindent 
+\textbf{Sorbonne Université} \hfill \textbf{M1 Mathématiques}\\
+\textbf{2018--2019} \hfill \textbf{4M056~: Programmation en \CPP}
+\begin{center}
+\textbf{TP not\'e 2~: Algorithme de Robbins-Monro}
+\end{center}
+\hrule \vspace*{20pt}
+
+À l'issue du TP, chaque binôme envoie par email ses fichiers \src{.hpp} et \src{.cpp}.
+\textbf{Il est imp\'eratif de mettre en commentaire, dans
+\textsc{tous} les fichiers, les nom, pr\'enom et n° d'\'etudiant de chacun des
+membres du bin\^ome.}
+
+\paragraph{Description}
+Soit $h : \setR\to\setR$ une fonction strictement croissante, continue. Soit $\alpha\in\setR$ tel que l'équation $h(x)=\alpha$ admette une solution réelle unique $x_\alpha$. Nous cherchons à avoir une valeur approchée du $x_\alpha$ inconnu de l'équation précédente. Pour cela, nous allons mettre en \oe{}uvre l'algorithme stochastique de Robbins-Monro dans sa version la plus élémentaire. 
+
+Soit $x_0\in\setR$. Soit $(X_n)$ la suite définie par récurrence:
+\begin{equation}
+X_{n+1} = X_n - \epsilon_{n+1} ( h(X_n)- \alpha + U_{n+1})
+\end{equation}
+où les variables $(U_n)_{n\in\setN^*}$ sont des v.a. indépendantes et identiquement distribuées de variance finie et d'espérance nulle, et où la suite $(\epsilon_n)_{n\in\setN^*}$ est une suite déterministe de nombres réels strictement positifs qui satisfont les trois conditions suivantes:
+\begin{align*}
+\epsilon_n&\xrightarrow{n\to\infty} 0, 
+&
+\sum_{n} \epsilon_n &= +\infty,
+&
+\sum_{n} \epsilon_n^2 &< +\infty.
+\end{align*}
+On peut alors montrer que, si $x_0$ est suffisamment proche de $x_\alpha$ alors l'algorithme précédent converge presque sûrement vers $x_\alpha$.
+
+Nous vous proposons dans ce qui suit d'écrire un \emph{template} de fonction \src{robbins-monro} et de le tester sur plusieurs situations avec différentes suites $(\epsilon_n)$ et différents incréments $(U_n)$.
+
+\question \'Ecrire dans un fichier \src{robbinsmonro.hpp} un modèle de fonction:
+\begin{cppcode}
+template <class Func, class DetermSeq, class RandomV, class RNG>
+std::pair<double,double> robbins_monro(
+		const Func & h, double x_init, double alpha, 
+		const DetermSeq & epsilon,RandomV & U, RNG & G
+		long unsigned N);
+\end{cppcode}
+avec les contraintes suivantes:
+\begin{itemize}
+\item \src{h} possède une méthode \src{double operator()(double) const}.
+\item \src{epsilon} possède une méthode \src{double operator()(long unsigned n) const} qui renvoie le réel $\epsilon_n$.
+\item \src{U} et \src{G} peuvent être n'importe quelle loi de v.a. de la STL et n'importe quel générateur de nombres pseudo-aléatoires de la STL. Ils servent à générer les réalisations des v.a. $U_{n}$.
+\item le résultat renvoyé est la paire $(x_{N}, h(x_{N}))$ (et nous rappelons qu'on peut créer une paire avec \src{std::make_pair(a,b)}).
+\end{itemize}
+
+\question \'Ecrire un programme \src{test1.cpp} dans lequel vous appliquez l'algorithme de Robbins-Monro précédent à la fonction $x\mapsto 1/(1+e^{-x})$ avec $\alpha=2/3$ avec $\epsilon_n=1/(n+1)$ et pour les $U_{n}$ des v.a. réelles uniformes\footnote{La STL fournit \src{std::uniform_real_distribution<double>} qui prend comme constructeur les bornes de l'intervalle.} sur $[-0.1;0.1]$. On prendra également $x_0=0$. On souhaite l'affichage final suivant:
+\begin{cppcode}
+Pour N= 1000000, on obtient x= VALEUR1 (et h(x)= VALEUR2)
+Pour N= 10000000, on obtient x= VALEUR3 (et h(x)= VALEUR4)
+\end{cppcode}
+La valeur attendue est $x_\alpha=0.6931$.
+
+\textbf{Nous vous déconseillons de poursuivre si vous n'obtenez pas de valeur similaire.}
+
+\question L'algorithme de Robbins-Monro fournit un résultat aléatoire. Nous souhaitons donc étudier la variance empirique du résultat obtenu. Compléter le programme \src{test1.cpp} en reprenant les paramètres de la question précédente et affichant pour $N=100000$ et $N=1000000$, la variance empirique de $x_N$ sur $K=100$ échantillons, autrement dit la quantité:
+\[
+v_{N,K} = \frac{1}{K} \sum_{k=1}^K (x_N^{(k)})^2 - \left(\frac{1}{K} \sum_{k=1}^K x_N^{(k)}\right)^2
+\]
+où les $x_N^{(k)}$ sont indépendants et obtenus par des appels successifs à \src{robbins_monro}. 
+
+
+\question L'algorithme de Robbins-Monro marche pour des fonctions $h$ monotones. En particulier, toute combinaison linéaire positive d'exponentielles croissantes est encore croissante. Nous introduisons ainsi, pour tous coefficients $(\alpha_i)_{0\leq i \leq k-1}$ de $\setR_+$ et tous coefficients $(\beta_i)_{0\leq i\leq k-1}$ de $\setR_+$, la fonction:\[
+h_{\alpha,\beta}(x) =\sum_{i=0}^{k-1} \alpha_i \exp(\beta_i x)
+\]
+Afin de décrire ce type de fonctions, nous introduisons la classe suivante dans des fichiers \src{explin.hpp} et \src{explin.cpp}:
+\begin{cppcode}
+class ExpCombiLin {
+private:	unsigned k;
+		double * alpha;	//tableau des alpha_i
+		double * beta; //tableau des beta_i
+public: 	ExpCombiLin(unsigned);//constructeur
+		double coeff(unsigned) const; //accesseur alpha
+		double exponent(unsigned) const;//accesseur beta
+		// ajouter mutateurs avec noms identiques
+};
+\end{cppcode}
+Le premier constructeur permet d'initialiser la taille, d'allouer la mémoire des deux tableaux dynamiques, d'initialiser tous les $\alpha_i$ à $1$ et tous les $\beta_i$ à $i$.
+
+\'Ecrire les codes du constructeur, des accesseurs et des mutateurs.
+
+\question \'Ecrire le code de \src{operator()} pour pouvoir appeler un objet de \src{ExpCombiLin} comme premier argument de \src{robbins_monro}.
+
+\question (\emph{rule of three}) \'Ecrire le code du constructeur par copie, du destructeur et de l'opérateur d'affectation.
+
+\question En utilisant la classe \src{ExpCombiLin} et le \emph{template} \src{robbins_monro}, résoudre dans un programme \src{solution.cpp} $1+3 e^{x} + e^{2x} = \alpha$ avec $\alpha=3$. On utilisera pour les v.a. $(U_n)$ des lois normales centrées de variance $0.1$. On fera $N=1000$ itérations à partir de $x=0$. On fera le calcul trois fois en utilisant $\epsilon_n=C/(n+1)$ pour $C=0.1$, $C=0.75$ et $C=1.$ en affichant dans le terminal $x_\alpha$ et $h(x_\alpha)$. On indiquera en commentaire quel est le meilleur résultat\footnote{Le résultat officiel est $x_\alpha=-0.5770494522$.}.
+
+
+
+\end{document}

@@ -1,0 +1,103 @@
+\documentclass[10pt]{article}
+\usepackage{../../../../lib/math-book-dsimon}
+\usepackage{../../../../lib/programmation-dsimon}
+\usepackage{booktabs}
+\newcounter{questionnumber}
+\newcommand{\question}{\stepcounter{questionnumber}\paragraph{\thequestionnumber.}}
+
+\begin{document}
+
+\hrule \vspace*{5pt} \noindent 
+\textbf{Sorbonne Université} \hfill \textbf{M1 Mathématiques}\\
+\textbf{2018--2019} \hfill \textbf{4M056~: Programmation en \CPP}
+\begin{center}
+\textbf{TP not\'e 2~: recherche de zéros par la méthode de Newton}
+\end{center}
+\hrule \vspace*{20pt}
+
+À l'issue du TP, chaque binôme envoie par email ses fichiers \src{.hpp} et \src{.cpp}.
+\textbf{Il est imp\'eratif de mettre en commentaire, dans
+\textsc{tous} les fichiers, les nom, pr\'enom et n° d'\'etudiant de chacun des
+membres du bin\^ome.}
+
+\paragraph{Description}
+Soit $f:\setR\to\setR$ une fonction de classe $C^1$. Soit $x\in\setR$. On définit alors la suite $(x_n)_{n\in\setN}$ par $x_0=x$ et \[
+x_{n+1} = x_n - f(x_n)/f'(x_n)
+\]
+Si $\alpha$ est un zéro de $f$, alors il existe un voisinage de $\alpha$ tel que, pour tout $x$ dans ce voisinage, la suite $(x_n)_{n\in\setN}$ définie précédemment converge vers $\alpha$.
+
+Cela permet, étant donnée une estimation a priori d'un zéro d'une fonction, de construire une suite qui converge vers ce zéro. Si l'estimation de départ est trop mauvaise, alors la suite peut ne pas converger. Cette méthode marche également sur les nombres complexes pour les fonctions analytiques.
+
+Le but de ce TP est de programmer un modèle de fonction qui implémente cette suite et de le tester sur quelques cas simples.
+
+\question Dans un fichier \src{newton.hpp}, écrire un \emph{template} de fonction 
+\begin{cppcode}
+template <class Func, class K>
+K newton_method(const Func & f, K x0, unsigned max_iter, double precision);
+\end{cppcode}
+qui itère la suite $(x_n)$ initialisée à \src{x0} jusqu'à ce que $|f(x)|$ soit inférieur à \src{precision} ou bien que le nombre d'itérations dépasse \src{max_iter}. Nous supposerons que:
+\begin{itemize}
+\item sur tout corps \src{K} admissible dans le \emph{template}, \src{std::abs(x)} (défini dans \src{<cstdlib>}, \src{<cmath>} ou \src{<complex>} selon les types) calcule $|x|$.
+\item les objets \src{f} de type quelconque \src{F} possède un opérateur \src{()} tel que \src{f(x)} soit de type \src{K} pour \src{x} de type \src{K}, ainsi qu'une méthode \src{deriv} telle que \src{f.deriv(x)} donne la dérivée (de type \src{K} également) au point \src{x}.
+\end{itemize}
+
+\question Faire ce qu'il faut pour que, si l'argument \src{precision} n'est pas utilisé, alors \src{precision} prend la valeur par défaut $10^{-12}$.
+
+
+\question Dans un fichier \src{test_sin.cpp}, on souhaite tester notre \emph{template} sur la fonction $s(x)=\sin(\pi x)$ dont les zéros sont les nombres entiers. Pour cela, on crée une courte classe:
+\begin{cppcode}
+class Sinclass {
+	public:
+		double operator() (double x) ...........
+		double deriv (double x) ...........
+};
+\end{cppcode}
+qui implémente la fonction $s$.
+
+\question Dans ce même fichier \src{test_sin.cpp}, ajouter une fonction \src{main()} qui, partant d'un point $x=5.4$, cherche un zéro de la fonction $s$ par la méthode de Newton (en utilisant bien évidemment le \emph{template} précédent). Vous utiliserez pour \src{max_iter} la valeur qui vous semblera raisonnable (testez !) pour atteindre la précision par défaut.
+
+\question La méthode de Newton est très efficace pour calculer des racines carrées réelles ou complexes. En effet, pour calculer $\sqrt{a}$ pour $a>0$, il suffit de chercher un zéro de $x\mapsto x^2-a$. Dans un fichier \src{sqrt.cpp}, on déclare une classe \src{Poly2} pour décrire les fonctions de type $x\mapsto x^2-a$ et une fonction \src{sqrt_approx}:
+\begin{cppcode}
+class Poly2 {
+	protected:   
+		double a;
+	public:   
+		Poly2(double a0);
+		...
+};
+double sqrt_approx(double a, unsigned max_iter, double precision);
+\end{cppcode}
+Compléter le code de la classe \src{Poly2} pour qu'elle soit utilisable comme premier argument du template précédent.
+
+\question \'Ecrire le code de \src{sqrt_approx} qui ne doit faire appel qu'à un objet de la classe \src{Poly2} et au template \src{newton_method} et calcule une approximation de $\sqrt{a}$.
+
+\question Ajouter une classe \src{Poly2C} et une fonction \src{sqrt_approx_c} qui fassent les mêmes calculs dans le cas complexe, et non plus réel. Nous vous rappelons que \src{<complex>} permet de manipuler les nombres complexes avec un type \src{std::complex<double>}, un constructeur à deux arguments (parties réelle puis imaginaire) et les opérations arithmétiques usuelles.
+
+\question Dans le fichier \src{sqrt.cpp} toujours, écrire une fonction \src{main()} qui teste les fonctions précédentes qui calculent les racines carrées de $4$, $9$, $i$ et $(1/2)-(\sqrt{3}/2)i$ avec une précision de $10^{-12}$ et affichent le résultat dans le terminal.
+
+\question \textbf{Zéros de polynômes.}
+Dans un fichier \src{polynome.hpp}, soit la classe:
+\begin{cppcode}
+template <class K>
+class Polynome {
+	protected:
+		int degree;
+		K * coeff;
+	public: 
+		...
+};
+\end{cppcode}
+pour coder les polynômes à coefficients dans \src{K}: \src{degree} donne le degré $d$ du polynôme et \src{coeff} est un tableau de taille \src{degree+1} tel que \src{coeff[i]} est le coefficient du monôme de degré \src{i} du polynôme.
+\'Ecrire le code de l'opérateur \src{()} et de la méthode \src{deriv()}.
+
+\question \'Ecrire un constructeur \src{Polynome(const std::vector<K> & v)} à partir d'un vecteur qui contient la suite des coefficients (faites attention au fait que le degré est la taille de \src{v} diminuée de 1). Nous supposerons que \src{v[i]} est le coefficient du monôme de degré \src{i}.
+
+\question \'Ecrire également le constructeur par copie, le destructeur de cette classe et l'opérateur d'affectation.
+
+\question Dans un programme \src{test_poly.cpp}, chercher les zéros réels de \[
+P(X) = X^5-4 X^4 +4 X^3 -16 X^2 +3 X -12
+\]
+dans l'intervalle $[-10,10]$ en essayant de faire converger la méthode de Newton à partir de conditions de départ idoines.
+
+
+\end{document}

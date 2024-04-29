@@ -1,0 +1,108 @@
+\documentclass[10pt]{article}
+\usepackage{../../../../lib/math-book-dsimon}
+\usepackage{../../../../lib/programmation-dsimon}
+\usepackage{booktabs}
+\newcounter{questionnumber}
+\newcommand{\question}{\stepcounter{questionnumber}\paragraph{\thequestionnumber.}}
+
+\DeclareMathOperator{\grad}{grad}
+
+\begin{document}
+
+\hrule \vspace*{5pt} \noindent 
+\textbf{Sorbonne Université} \hfill \textbf{M1 Mathématiques}\\
+\textbf{2018--2019} \hfill \textbf{4M056~: Programmation en \CPP}
+\begin{center}
+\textbf{TP not\'e 2~: recherche de minimum par descente de gradient}
+\end{center}
+\hrule \vspace*{20pt}
+
+À l'issue du TP, chaque binôme envoie par email ses fichiers \src{.hpp} et \src{.cpp}.
+\textbf{Il est imp\'eratif de mettre en commentaire, dans
+\textsc{tous} les fichiers, les nom, pr\'enom et n° d'\'etudiant de chacun des
+membres du bin\^ome.}
+
+\paragraph{Description}
+Soit $f:\setR^d\to\setR$ une fonction de classe $C^1$. Le gradient de $f$ en $x=(x_1,\ldots,x_d)$ est le vecteur:
+\[
+\grad(f)(x) = \left(
+\frac{\partial f}{\partial x_1},\ldots, \frac{\partial f}{\partial x_d},
+\right)
+\]
+qui indique la pente ascendante de $f$ en $x$. Pour trouver un minimum de $f$, un idée naïve consiste à suivre l'opposé du gradient (d'où le nom de \emph{descente de gradient}). 
+
+Soit $\lambda>0$ et soit $x\in\setR^d$. On définit alors la suite $(x_n)_{n\in\setN}$ par $x_0=x$ et \[
+x_{n+1} = x_n - \lambda \grad(f)(x)
+\]
+Si $\lambda$ est suffisamment petit et si $x$ est suffisamment près d'un minimum de $f$ alors la suite précédente converge vers ce minimum. Nous allons mettre en \oe{}uvre cet algorithme sous la forme d'un \emph{template} de fonction.
+Si $\alpha$ est un zéro de $f$, alors il existe un voisinage de $\alpha$ tel que, pour tout $x$ dans ce voisinage, la suite $(x_n)_{n\in\setN}$ définie précédemment converge vers $\alpha$.
+
+\question Dans un fichier \src{gradient.hpp}, écrire un \emph{template} de fonction 
+\begin{cppcode}
+template <class Func, class V>
+std::tuple<V,double,V> gradient_descent(const Func & f, V x0, 
+		unsigned max_iter, double lambda);
+\end{cppcode}
+qui itère la suite $(x_n)$ initialisée à \src{x0} jusqu'à ce que le nombre d'itérations dépasse \src{max_iter}. Nous supposerons que  les types \src{V} et \src{Func} représentent respectivement un espace vectoriel et l'ensemble des fonctions de \src{V} dans $\setR$ et vérifient les propriétés suivantes:
+\begin{itemize}
+\item les objets de type \src{V} sont munis de \src{+} et \src{-} et la multiplication par un scalaire.
+
+\item les objets \src{f} de type quelconque \src{Func} possède un opérateur \src{()} tel que \src{f(x)} soit de type \src{double} pour \src{x} de type \src{V}, ainsi qu'une méthode \src{grad} telle que \src{f.grad(x)} donne la dérivée (de type \src{V} également) au point \src{x}.
+
+\item le \src{tuple} renvoyée (défini dans la bibliothèque \src{<tuple>} et créé éventuellement par \src{std::make_tuple(a,b,c)}) a pour premier élément l'estimation du point où le minimum de \src{f} est atteint, en deuxième argument le minimum estimé et en troisième argument le gradient de \src{f} calculé au même point.
+\end{itemize}
+\'Etant donné un élément \src{c} de type \src{std::tuple<V,double,V>}, on accède en lecture ou en écriture au $k$-ème élément par l'instruction \src{std::get<k>(t)}.
+
+\question Faire ce qu'il faut pour que, si l'argument \src{lambda} n'est pas précisé, il est choisi égal à \src{0.01}.
+
+
+\question \textbf{Test sur une fonction simple.} Soit $m>0$. La fonction $q(x)=x^4-2m^2 x^2$ possède deux minima en $\pm m$ avec valeur $f(\pm m)=-m^4$. Nous proposons une classe très simple dans un fichier \src{quartic.hpp}
+\begin{cppcode}
+class Quartic {
+	protected:	
+		double m;
+	public:	
+		Quartic(double m0);
+		... operator() ....
+		... grad(...) ...
+};
+\end{cppcode}
+La compléter comme il le faut pour qu'elle puisse être utilisée comme premier argument de \src{gradient_descent}. En dimension un comme ici, le gradient est tout simplement la dérivée.
+
+\question Dans le même fichier \src{quartic.cpp}, utilisez \src{gradient_descent} avec les valeurs par défaut pour vérifier que vous retrouvez au moins un minimum de \src{q(x)} en moins de 1000 itérations pour $m=1$ et $m=2$ en partant de $x=0.5$.
+
+\question \textbf{Implémentation de $\setR^d$.} On introduit dans un fichier \src{vect.hpp} le \emph{template} de classe suivant pour décrire des points de $\setR^d$:
+\begin{cppcode}
+template <unsigned d>
+class Vect {
+	protected:
+	double * coord;//tableau dynamique avec d cases
+	public:
+	Vect();
+	double operator[](unsigned i) const; //accesseur à la i-ème  coordonnée
+		...
+};
+\end{cppcode}
+Compléter le constructeur par défaut qui alloue le tableau et met toutes les coordonnées à zéro, l'accesseur aux coordonnées et le mutateur associé.
+
+\question Surcharger l'opérateur \src{<<} pour afficher un point de \src{Vect<d>} sous la forme:
+\begin{cppcode}
+(x1,x2,...,xd)
+\end{cppcode}
+
+\question (\emph{rule of three}) \'Ecrire le constructeur par copie, le destructeur et l'opérateur d'affectation.
+
+\question Ajouter une fonction de multiplication par un nombre réel:
+\begin{cppcode}
+template <int d>
+Vect<d> operator*(double x,const Vect<d> & u);
+\end{cppcode}
+ainsi qu'une fonction d'ajout de deux vecteurs avec \src{operator+}. \emph{Cela permet ainsi aux classes \src{Vect<d>} d'être utilisées comme classe \src{V} dans \src{gradient_descent}.}
+
+\question Soit la fonction $G:\setR^2\to\setR^2$ définie par \[
+G(x,y) = x^4+y^4 - 2x^2-2 y^2 + x+y
+\] \'Ecrire dans un programme \src{test2d.cpp} un programme complet qui trouve un minimum de $G$ en partant du point initial $(0,0)$. Le programme devra bien évidemment utiliser \src{gradient_descent} ainsi que la classe \src{Vect<2>} qui sera utilisée pour les arguments de $G$ et son gradient. On affichera les valeurs du point où le minimum est trouvé, la valeur du minimum et la valeur du gradient (pour s'assurer que cette dernière est proche de $0$).
+
+\emph{Remarque: le minimum attendu est en $(-1.10716,-1.10716)$ approximativement. Vous ajusterez le nombre d'itérations et $\lambda$ pour assurer la convergence du programme.}
+
+\end{document}
