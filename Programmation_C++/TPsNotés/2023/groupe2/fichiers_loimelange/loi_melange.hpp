@@ -7,34 +7,54 @@
 
 
 // bibliothèques à compléter 
-
+#include <vector>
+#include <random>
+#include <iostream>
 // déclarations à compléter
+template <class RV> class Melange;
+template <class RV>
+std::ostream & operator<<(std::ostream &o, const Melange<RV> &m);
 
-
+template <class RV>
+Melange<RV> operator+(const Melange<RV> &m1, const Melange<RV> &m2);
 
 template <class RV>
 class Melange {
 	private:
 		std::vector<RV> modes;
-		std::discrete_distribution<int> choose_mode; 
+		std::discrete_distribution<int> choose_mode;
 		
 	public:
 	  // Constructeurs
-		 ... constructeur par défaut... 
-		
+	  Melange(): modes(), choose_mode(){};
+	  // question 12
+	  Melange(const std::vector<typename RV::param_type> &v_param, const std::vector<double> &v_poids);
+
 		// Accesseurs
-		... nb_of_modes() ...
-		... weights() ...
-		... operator[](...) ...
+		// question 2
+		int nb_of_modes() const {	return modes.size(); };
+		// question 3
+		std::vector<double> weights() const {	return choose_mode.probabilities(); };
+		// question 4
+		RV operator[](int i) const {	return modes[i]; };
 		
 		// Ajout d'un mode
-		... add_mode(... alpha, ... to_add) ...
+		// question 6
+		void add_mode(const double alpha, const RV & to_add);
 		
 		// Réalisation
-		...
-		typename RV::result_type operator()(...)...
+		// question 8
+		template <typename RNG>
+		typename RV::result_type operator()(RNG & G);
 		
-		// ...
+		// question 5
+		void print_type() const {	std::cout << typeid( RV() ).name() << "\n "; };
+
+		// question 11
+		friend std::ostream & operator<< <>(std::ostream &o, const Melange<RV> &m);
+
+		// question 14
+		friend Melange<RV> operator+ <>(const Melange<RV> &m1, const Melange<RV> &m2);
 
 };
 
