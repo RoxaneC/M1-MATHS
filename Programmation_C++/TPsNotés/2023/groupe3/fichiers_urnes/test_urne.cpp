@@ -7,6 +7,9 @@
 #include "regles.hpp"
 #include <vector>
 #include <algorithm>
+// test perso
+#include <ctime>
+#include <chrono>
 
 using namespace std;
 
@@ -50,12 +53,20 @@ int main() {
     // question 16
     Friedman2 updateF(7, 2);
     // question 17
-    vector<double> propF(size_prop);
-    for(int i=0 ; i<size_prop ; i++){
+    vector<double> propF(size_prop*10);
+    
+    // + test
+    auto t1 = chrono::system_clock::now();
+    for(int i=0 ; i<size_prop*10 ; i++){
         U.reset();
-        U.maj_p_fois(updateF, Gen, 1000);
+        U.maj_p_fois(updateF, Gen, 100000);
         propF[i] = U.fraction(0);
     }
+    auto t2 = chrono::system_clock::now();
+    chrono::duration<double> tps = t2-t1;
+    cout << "Temps d'execution : " << tps.count() << " seconde\n";
+    // fin test
+
     sort(propF.begin(), propF.end());
     for(int j=0 ; j<10 ; j++){
         cout << propF[double(size_prop)/10*j] << "\n";
